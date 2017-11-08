@@ -14,12 +14,11 @@ public class Server
         System.out.println("服务器启动");
     }
 
-    public void service() throws IOException
+    private void service() throws IOException
     {
         OutputStream dstFile = new FileOutputStream("D:\\destination.txt");
         int currentOrder;
         int preOrder=-1;
-        lable1:
         while (true)
         {
             try
@@ -33,11 +32,10 @@ public class Server
                 {
                     response = new DatagramPacket(intToByteArray(-3), 4,packet.getSocketAddress());
                     socket.send(response);
-                    break lable1;
+                    break;
                 }
                 if(currentOrder!=preOrder+1)
                 {
-                    currentOrder--;
                     response=new DatagramPacket(intToByteArray(-2),4,packet.getSocketAddress());
                     socket.send(response);
                 }
@@ -62,7 +60,7 @@ public class Server
         new Server().service();
     }
 
-    public static int byteArrayToInt(byte[] b)
+    private static int byteArrayToInt(byte[] b)
     {
         return b[3] & 0xFF |
                 (b[2] & 0xFF) << 8 |
@@ -70,7 +68,7 @@ public class Server
                 (b[0] & 0xFF) << 24;
     }
 
-    public static byte[] intToByteArray(int a)
+    private static byte[] intToByteArray(int a)
     {
         return new byte[]{
                 (byte) ((a >> 24) & 0xFF),
@@ -80,18 +78,10 @@ public class Server
         };
     }
 
-    public static byte[] addBytes(byte[] data1, byte[] data2)
-    {
-        byte[] data3 = new byte[data1.length + data2.length];
-        System.arraycopy(data1, 0, data3, 0, data1.length);
-        System.arraycopy(data2, 0, data3, data1.length, data2.length);
-        return data3;
-    }
-
-    public static byte[] cutByteArray(byte[] data,int start, int length)
+    private static byte[] cutByteArray(byte[] data, int start, int length)
     {
         byte[] result = new byte[length];
-        for (int i = 0; i < length; i++) result[i] = data[start + i];
+        System.arraycopy(data, start, result, 0, length);
         return result;
     }
 }

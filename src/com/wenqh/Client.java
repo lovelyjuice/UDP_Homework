@@ -21,7 +21,6 @@ public class Client
     private boolean existFailed = false;
     private boolean transComplete = false;
     private int cwnd = 0;
-    private int status1;
 
     public Client() throws IOException
     {
@@ -62,15 +61,10 @@ public class Client
                         sleep(20);
                         order = lastSuccessOrder+1;
                     }
-                    while (true)
-                    {
                         if (cwnd > 4){
                             sleep(200);
                             cwnd--;
-                            break;
                         }
-                        else break;
-                    }
                     byte[] packet = content.get(order);
                     DatagramPacket outputPacket = new DatagramPacket(addBytes(intToByteArray(order), packet), packet.length + 4, remoteIP, remotePort);
                     if(Math.random()<0.5) socket.send(outputPacket);  //给EchoServer发送数据报
@@ -94,10 +88,7 @@ public class Client
                     break lableB;
                 }
             }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        } catch (InterruptedException e)
+        } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
         } finally
@@ -119,7 +110,6 @@ public class Client
                 {
                     socket.receive(packet);
                     int status = byteArrayToInt(packet.getData());
-                    status1=status;
                     if (status >= 0)
                     {
                         lastSuccessOrder = status;
@@ -138,7 +128,7 @@ public class Client
                         cwnd--;
                     }
                 }
-            } catch (SocketException e){}
+            } catch (SocketException ignored){}
             catch (IOException e)
             {
                 e.printStackTrace();
@@ -147,7 +137,7 @@ public class Client
         }
     }
 
-    public static int byteArrayToInt(byte[] b)
+    private static int byteArrayToInt(byte[] b)
     {
         return b[3] & 0xFF |
                 (b[2] & 0xFF) << 8 |
@@ -155,7 +145,7 @@ public class Client
                 (b[0] & 0xFF) << 24;
     }
 
-    public static byte[] intToByteArray(int a)
+    private static byte[] intToByteArray(int a)
     {
         return new byte[]{
                 (byte) ((a >> 24) & 0xFF),
@@ -165,14 +155,14 @@ public class Client
         };
     }
 
-    public static byte[] cutByteArray(byte[] data, int start, int length)
+    private static byte[] cutByteArray(byte[] data, int start, int length)
     {
         byte[] result = new byte[length];
-        for (int i = 0; i < length; i++) result[i] = data[start + i];
+        System.arraycopy(data, start, result, 0, length);
         return result;
     }
 
-    public static byte[] addBytes(byte[] data1, byte[] data2)
+    private static byte[] addBytes(byte[] data1, byte[] data2)
     {
         byte[] data3 = new byte[data1.length + data2.length];
         System.arraycopy(data1, 0, data3, 0, data1.length);
